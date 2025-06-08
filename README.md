@@ -54,11 +54,11 @@ Visualizza **nome, cognome, job title, company** e **QR code personalizzato** si
 
 ```bash
 # Clona il progetto
-git clone https://github.com/tuo-username/tuo-repo.git
-cd tuo-repo
+git clone git@github.com:salvatore-esposito-green/Smart-Badge.git
+cd Smart-Badge
 
 # Build e flash con PlatformIO
-pio run --target upload
+pio run -t upload && pio device monitor
 ```
 
 ### Struttura del firmware
