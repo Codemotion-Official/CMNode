@@ -12,7 +12,7 @@ const int DISPLAY_CS_PIN = 7;
 const int DISPLAY_BUSY_PIN = 3;
 const int DISPLAY_RES_PIN = 2;
 
-const int BUTTON_PIN = 5;
+const int BUTTON_PIN = 10;
 
 // --- INCLUDES ---
 #include <Arduino.h>
@@ -35,6 +35,7 @@ struct BadgeData {
 void drawBadge(const BadgeData& data);
 void drawQr(String link);
 void setupBLE();
+void checkButtonPress();
 
 // --- GLOBAL OBJECTS ---
 GxEPD2_3C<GxEPD2_290_C90c, GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(/*CS=5*/ DISPLAY_CS_PIN, /*DC=*/ DISPLAY_DC_PIN, /*RST=*/ DISPLAY_RES_PIN, /*BUSY=*/ DISPLAY_BUSY_PIN));
@@ -43,17 +44,33 @@ U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 QRCodeGFX qrcode(display);
 
 BadgeData currentData; 
-bool dataHasChanged = false;
+BadgeData alternateData;
 
-void setup() {
-  currentData.name = "Codemotion Conference";
-  currentData.surname = "Milan 2025";
-  currentData.jobTitle = "Ready to connect...";
-  currentData.company = "Codemotion";
-  currentData.qrLink = "https://codemotion.com";
+bool dataHasChanged = true;
+bool showingAlternateScreen = false;
+
+int buttonState = HIGH;
+int lastButtonState = HIGH;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
+
+void setup() { 
+  // --- FirstTime ---
+  currentData.name     = "Ready to";
+  currentData.surname  = "Connect?";
+  currentData.jobTitle = "Sincronizza il tuo badge!";
+  currentData.company  = "Codemotion"; 
+  currentData.qrLink   = "https://codemotion.com";
+  // --- OnCLick Button ---
+  alternateData.name     = "The Best";
+  alternateData.surname  = "Conference";
+  alternateData.jobTitle = "in Europe!";
+  alternateData.company  = "Codemotion";
+  alternateData.qrLink   = "https://conferences.codemotion.com/milan2025/agenda";
 
   pinMode(LED_PIN_DEBUG, OUTPUT);
   digitalWrite(LED_PIN_DEBUG, LOW);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
 
   Serial.begin(9600);
   
@@ -171,6 +188,28 @@ void parseAndLoadBadgeData(String data) {
   dataHasChanged = true;
 }
 
+void checkButtonPress() {
+  int reading = digitalRead(BUTTON_PIN);
+
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+
+      if (buttonState == LOW) {
+        Serial.println("Pulsante premuto!");
+        showingAlternateScreen = !showingAlternateScreen; 
+        dataHasChanged = true;
+      }
+    }
+  }
+
+  lastButtonState = reading;
+}
+
 void checkSerialInput() {
   if (Serial.available() > 0) {
     String incomingData = Serial.readStringUntil('\n');
@@ -184,16 +223,23 @@ void checkSerialInput() {
 
 void loop() {
   checkSerialInput();
+  checkButtonPress();
 
   if (dataHasChanged) {
     Serial.println("Dati cambiati, aggiorno il display...");
 
     dataHasChanged = false;
-    drawBadge(currentData);
+
+    if (showingAlternateScreen) {
+      drawBadge(alternateData);
+    } else {
+      drawBadge(currentData);
+    }
+
     display.hibernate();
 
     Serial.println("Display aggiornato.");
   }
 
-  delay(1000); 
+  delay(50); 
 }
