@@ -8,7 +8,7 @@
 #define EPD_DC      1
 #define EPD_RST     2
 #define EPD_BUSY    10
-// SCK (4) and MOSI (6) are managed by hardware SPI default
+// SCK (4) and MOSI (6) pins are managed by the C3 default hardware SPI
 
 // --- DATA STRUCTURE ---
 struct BadgeData {
@@ -20,21 +20,12 @@ struct BadgeData {
 };
 
 // --- GLOBAL OBJECTS ---
-// Nota: Assicurati che il modello del display (GxEPD2_290_C90c) corrisponda esattamente al tuo hardware
 GxEPD2_3C<GxEPD2_290_C90c, GxEPD2_290_C90c::HEIGHT> display(GxEPD2_290_C90c(EPD_CS, EPD_DC, EPD_RST, EPD_BUSY));
 U8G2_FOR_ADAFRUIT_GFX u8g2;
 QRCodeGFX qrcode(display);
 
 BadgeData badge;
 bool needRefresh = true;
-
-// --- FUNCTION PROTOTYPES (Obbligatori in .cpp) ---
-String getValue(String data, char separator, int index);
-void parseSerialData();
-void drawContent();
-void refreshDisplay();
-
-// --- HELPER FUNCTIONS ---
 
 // Helper to extract data from the semicolon-separated string
 String getValue(String data, char separator, int index) {
@@ -114,6 +105,7 @@ void drawContent() {
   qrcode.setScale(3); // QR Size
   int qrSize = qrcode.getSideLength();
   int qrX = display.width() - qrSize; // Right-aligned with margin
+  int qrYCentered = (display.height() - qrSize) / 2; // Vertically centered on the display [Not used]
   
   // Note: qrcode.draw uses graphic primitives, so it respects display rotation
   qrcode.draw(qrX, 0);
@@ -158,6 +150,7 @@ void loop() {
     refreshDisplay();
   }
   
-  // Small delay to avoid unnecessary CPU saturation
+  // Small delay to avoid unnecessary CPU saturation, 
+  // but we don't use deep sleep because we need to listen to serial.
   delay(100); 
 }
