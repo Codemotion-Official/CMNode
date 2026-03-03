@@ -1,0 +1,6 @@
+Name,Description,Designator,Part Number,Price,Qty
+C0805C104M5RAC,CAP CER 0805 100nF 50V X7R 20%,"C1,C2",,,2
+WE-SMSA_M3,,"MP1,MP2",,,2
+CRCW08054K70FKEA,RES SMD 0805 4.7k OHM 1% 1/8W,"R1,R2",,,2
+ESP32-C3_SUPERMINI_TH,Super tiny ESP32-C3 board,U1,,,1
+weact_eink_display,,U2,,,1
