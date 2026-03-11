@@ -52,8 +52,8 @@ This is not disposable conference swag. It's a developer tool in badge form.
 
 | Component | Details |
 |-----------|---------|
-| **MCU** | WeAct ESP32-C3 Super Mini (RISC-V, WiFi, BLE) |
-| **Display** | Waveshare 2.9" E-Paper — Black / White / Red (`GxEPD2_290_C90c`) |
+| **MCU** | ESP32-C3 Super Mini (RISC-V, WiFi, BLE) |
+| **Display** | WeAct 2.9" E-Paper — Black / White / Red (`GxEPD2_290_C90c`) |
 | **Connectivity** | USB-C (power + programming) |
 | **Prototyping** | Full GPIO breakout with breadboard area |
 
